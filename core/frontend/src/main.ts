@@ -36,7 +36,7 @@ Vue.component('VTour', VTour)
 Vue.component('VStep', VStep)
 Vue.prototype.$tours = {}
 
-const project = 'BlueOS'
+const project = 'Surfbee'
 // Avoid logging local development
 const version = import.meta.env.VITE_APP_GIT_DESCRIBE
 const isOfficialTag = version?.includes('tags/')

@@ -3,7 +3,7 @@ const menus = [
     title: 'Autopilot Firmware',
     icon: 'mdi-image-filter-center-focus-strong',
     route: '/vehicle/autopilot',
-    advanced: false,
+    advanced: true,
     text: 'Update flight controller firmware, select the active autopilot,'
       + ' and start/stop ArduPilot (if using Navigator or SITL).',
   },
@@ -11,6 +11,7 @@ const menus = [
     title: 'Autopilot Parameters',
     icon: 'mdi-table-settings',
     route: '/vehicle/parameters',
+    advanced: true,
     text: 'View and modify vehicle parameters.',
   },
   {
@@ -18,7 +19,7 @@ const menus = [
     icon: 'mdi-account-hard-hat',
     route: '/tools/available-services',
     advanced: true,
-    text: 'List all available services found in BlueOS serving http interfaces, and their'
+    text: 'List all available services found in Surfbee serving http interfaces, and their'
       + ' respective API documentations.',
   },
   {
@@ -29,18 +30,18 @@ const menus = [
     text: 'Editor for Bag Of Holding service.',
   },
   {
-    title: 'BlueOS Version',
+    title: 'Surfbee Version',
     icon: 'mdi-cellphone-arrow-down',
     route: '/tools/version-chooser',
-    advanced: false,
-    text: 'Manage BlueOS versions and update to the latest available.',
+    advanced: true,
+    text: 'Manage Surfbee versions and update to the latest available.',
   },
   {
     title: 'File Browser',
     icon: 'mdi-file-tree',
     route: '/tools/file-browser',
     advanced: true,
-    text: 'Browse all the files in BlueOS. Useful for fetching logs,'
+    text: 'Browse all the files in Surfbee. Useful for fetching logs,'
       + ' tweaking configurations, and development.',
   },
   {
@@ -84,6 +85,7 @@ const menus = [
     title: 'Network Test',
     icon: 'mdi-speedometer',
     route: '/tools/network-test',
+    advanced: true,
     show: true,
     text: 'Test link speed between topside computer and your vehicle.',
   },
@@ -91,7 +93,7 @@ const menus = [
     title: 'Ping Sonar Devices',
     icon: 'mdi-radar',
     route: '/vehicle/pings',
-    advanced: false,
+    advanced: true,
     text: 'Manage detected Ping family sonar devices, connected to either your Onboard Computer'
       + ' or its local network.',
   },
@@ -107,7 +109,7 @@ const menus = [
     title: 'System Information',
     icon: 'mdi-chart-pie',
     route: '/tools/system-information',
-    advanced: false,
+    advanced: true,
     text: 'Detailed system status information, CPU, memory, disk, and ethernet status.',
   },
   {
@@ -121,21 +123,21 @@ const menus = [
     title: 'Vehicle Setup',
     icon: 'mdi-cog-outline',
     route: '/vehicle/setup',
-    advanced: false,
+    advanced: true,
     text: 'Vehicle and Peripherals setup. Includes sensor calibrations and Motors/Peripherals mapping.',
   },
   {
     title: 'Video Streams',
     icon: 'mdi-video-vintage',
     route: '/vehicle/video-manager',
-    advanced: false,
+    advanced: true,
     text: 'Manage your video devices and video streams.',
   },
   {
     title: 'Records',
     icon: 'mdi-filmstrip',
     route: '/tools/records',
-    advanced: false,
+    advanced: true,
     text: 'Browse, preview, and download recorded MP4 sessions.',
   },
   {
