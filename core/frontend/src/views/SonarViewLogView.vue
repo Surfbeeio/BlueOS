@@ -1,5 +1,5 @@
 <template>
-  <sonarview-log-manager />
+  <SonarViewLogManager />
 </template>
 
 <script lang="ts">
