@@ -572,7 +572,7 @@ export default Vue.extend({
           title: 'Extensions',
           icon: 'mdi-puzzle',
           route: '/tools/extensions-manager',
-          advanced: false,
+          advanced: true,
           text: 'Manage Surfbee extensions',
           beta: true,
         },
