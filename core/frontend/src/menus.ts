@@ -60,6 +60,13 @@ const menus = [
       + ' currently only supported for Navigator boards.',
   },
   {
+    title: 'SonarView Logs',
+    icon: 'mdi-file-download',
+    route: '/vehicle/sonarview-logs',
+    advanced: false,
+    text: 'Browse and download SonarView log files from /userdata/sonarview directory.',
+  },
+  {
     title: 'MAVLink Endpoints',
     icon: 'mdi-arrow-decision',
     route: '/vehicle/endpoints',

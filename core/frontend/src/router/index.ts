@@ -34,6 +34,11 @@ const routes: Array<RouteConfig> = [
     component: defineAsyncComponent(() => import('../views/LogView.vue')),
   },
   {
+    path: '/vehicle/sonarview-logs',
+    name: 'SonarView Logs',
+    component: defineAsyncComponent(() => import('../views/SonarViewLogView.vue')),
+  },
+  {
     path: '/vehicle/endpoints',
     name: 'Endpoints',
     component: defineAsyncComponent(() => import('../views/EndpointView.vue')),
