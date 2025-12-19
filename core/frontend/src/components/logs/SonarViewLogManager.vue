@@ -143,12 +143,11 @@ export default Vue.extend({
       }
 
       this.logs_fetched = true
-      // Filter for log files only - common extensions include .log, .txt, .csv, .sl2, .sl3, etc.
-      // We include various formats that might be used by sonar systems
+      // Filter for .svlog files only
       this.available_logs = new_logs.filter(
         (log) => {
           const ext = log.extension.toLowerCase()
-          return ['.log', '.txt', '.csv', '.sl2', '.sl3', '.xtf', '.dat'].includes(ext) && log.size > 0
+          return ext === '.svlog' && log.size > 0
         },
       )
     },

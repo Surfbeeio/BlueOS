@@ -30,6 +30,10 @@ class SettingsStore extends VuexModule {
 
   user_top_widgets = [] as string[]
 
+  // Whitelist of extension names that should be visible without pirate mode
+  // Can be configured by editing the settings in the bag store
+  whitelisted_extensions = ['SonarView'] as string[]
+
   @Mutation
   setDarkTheme(value: boolean): void {
     this.is_dark_theme = value
@@ -66,6 +70,12 @@ class SettingsStore extends VuexModule {
   @Mutation
   setTopWidgets(widgets: string[]): void {
     this.user_top_widgets = widgets
+    SettingsStore.save()
+  }
+
+  @Mutation
+  setWhitelistedExtensions(extensions: string[]): void {
+    this.whitelisted_extensions = extensions
     SettingsStore.save()
   }
 
