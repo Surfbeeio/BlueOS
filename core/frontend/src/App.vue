@@ -559,17 +559,14 @@ export default Vue.extend({
         .filter((service: Service) : boolean => service.metadata !== null)
         .map((service: Service) => {
           const address = this.createExtensionAddress(service)
-          const extensionName = service.metadata?.name ?? 'Service name'
-          // Check if extension is whitelisted or if pirate mode is enabled
-          const isWhitelisted = settings.whitelisted_extensions.includes(extensionName)
           return {
-            title: extensionName,
+            title: service.metadata?.name ?? 'Service name',
             icon: service.metadata?.icon?.startsWith('/')
               ? `${address}${service.metadata.icon}`
               : service.metadata?.icon ?? 'mdi-puzzle',
             route: this.addExtraQuery(service.metadata?.route ?? address, service.metadata?.extra_query),
             new_page: service.metadata?.avoid_iframes ?? service.metadata?.new_page,
-            advanced: !isWhitelisted, // Only advanced if not whitelisted
+            advanced: false,
             text: service.metadata?.description ?? 'Service text',
             extension: true,
             disabled: this.isBehindWebProxy && !service.metadata?.works_in_relative_paths,
