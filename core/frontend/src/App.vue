@@ -124,7 +124,6 @@
           rounded
         >
           <div class="d-flex align-center justify-space-between">
-
             <v-btn
               small
               class="surfbee-extension-toggle__btn"
@@ -420,7 +419,7 @@
 <script lang="ts">
 import Vue, { defineAsyncComponent } from 'vue'
 
-import surfbeeLogo from '@/assets/img/surfbee.io-Logo.png'
+import surfbeeLogo from '@/assets/img/Surfbee-io-Logo.png'
 import consoleLogger from '@/libs/console-logger'
 import settings from '@/libs/settings'
 import helper from '@/store/helper'
