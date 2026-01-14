@@ -124,14 +124,7 @@
           rounded
         >
           <div class="d-flex align-center justify-space-between">
-            <div class="mr-3">
-              <div class="font-weight-medium">
-                Extensions stay hidden in normal mode.
-              </div>
-              <div class="caption">
-                Temporarily reveal them without enabling Pirate Mode.
-              </div>
-            </div>
+
             <v-btn
               small
               class="surfbee-extension-toggle__btn"
@@ -427,7 +420,7 @@
 <script lang="ts">
 import Vue, { defineAsyncComponent } from 'vue'
 
-import surfbeeLogo from '@/assets/img/surfbee-logo.png'
+import surfbeeLogo from '@/assets/img/surfbee.io-Logo.png'
 import consoleLogger from '@/libs/console-logger'
 import settings from '@/libs/settings'
 import helper from '@/store/helper'
@@ -466,6 +459,12 @@ import { TopBarWidget } from './types/common'
 import Cpu from './widgets/Cpu.vue'
 import Disk from './widgets/Disk.vue'
 import Networking from './widgets/Networking.vue'
+
+const ALWAYS_VISIBLE_EXTENSION_SANITIZED_NAMES = [
+  'sonarview'
+  // put extension names here
+  // example: 'my_extension'
+]
 
 export default Vue.extend({
   name: 'App',
@@ -583,6 +582,13 @@ export default Vue.extend({
     shouldShowExtensions(): boolean {
       return settings.is_pirate_mode || settings.show_extensions_in_normal_mode
     },
+    isAlwaysVisibleExtension(route: string): boolean {
+    return ALWAYS_VISIBLE_EXTENSION_SANITIZED_NAMES.some(
+      (name) =>
+        route.includes(`/extension/${name}`) ||
+        route.includes(`/extensionv2/${name}/`)
+      )
+    },
     extensionToggleLabel(): string {
       return settings.show_extensions_in_normal_mode ? 'Hide extensions' : 'Show extensions'
     },
@@ -619,8 +625,11 @@ export default Vue.extend({
         ...foundExtensions,
       ] as menuItem[]
 
-      const visibleExtensions = this.shouldShowExtensions ? extensions : []
-
+      const visibleExtensions = this.shouldShowExtensions()
+      ? extensions
+      : extensions.filter((ext) =>
+          this.isAlwaysVisibleExtension(ext.route)
+        )
       return [...filteredDefaultMenu, ...visibleExtensions].sort((a, b) => a.title.localeCompare(b.title))
     },
     steps() {
