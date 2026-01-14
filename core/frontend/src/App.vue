@@ -582,7 +582,8 @@ export default Vue.extend({
       return settings.is_pirate_mode || settings.show_extensions_in_normal_mode
     },
     isAlwaysVisibleExtension(route: string): boolean {
-      return ALWAYS_VISIBLE_EXTENSION_SANITIZED_NAMES.some((name) => route.includes(`/extension/${name}`) || route.includes(`/extensionv2/${name}/`))
+      return ALWAYS_VISIBLE_EXTENSION_SANITIZED_NAMES.some((name) => route.includes(`/extension/${name}`) 
+      || route.includes(`/extensionv2/${name}/`))
     },
     extensionToggleLabel(): string {
       return settings.show_extensions_in_normal_mode ? 'Hide extensions' : 'Show extensions'
@@ -620,7 +621,9 @@ export default Vue.extend({
         ...foundExtensions,
       ] as menuItem[]
 
-      const visibleExtensions = this.shouldShowExtensions() ? extensions: extensions.filter((ext) => this.isAlwaysVisibleExtension(ext.route))
+      const visibleExtensions = this.shouldShowExtensions 
+        ? extensions 
+        : extensions.filter((ext) => this.isAlwaysVisibleExtension(ext.route))
       return [...filteredDefaultMenu, ...visibleExtensions].sort((a, b) => a.title.localeCompare(b.title))
     },
     steps() {
