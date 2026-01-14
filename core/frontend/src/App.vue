@@ -621,7 +621,7 @@ export default Vue.extend({
         ...foundExtensions,
       ] as menuItem[]
 
-      const visibleExtensions = this.shouldShowExtensions
+      const visibleExtensions = this.shouldShowExtensions()
         ? extensions
         : extensions.filter((ext) => this.isAlwaysVisibleExtension(ext.route))
       return [...filteredDefaultMenu, ...visibleExtensions].sort((a, b) => a.title.localeCompare(b.title))
