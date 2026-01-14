@@ -459,11 +459,7 @@ import Cpu from './widgets/Cpu.vue'
 import Disk from './widgets/Disk.vue'
 import Networking from './widgets/Networking.vue'
 
-const ALWAYS_VISIBLE_EXTENSION_SANITIZED_NAMES = [
-  'sonarview',
-  // put extension names here
-  // example: 'my_extension'
-]
+
 
 export default Vue.extend({
   name: 'App',
