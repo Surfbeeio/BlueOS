@@ -27,7 +27,7 @@
       <v-app-bar
         app
         rounded="0"
-        :class="app_bar_style"
+        :class="['surfbee-app-bar', app_bar_style]"
         :height="toolbar_height"
         @contextmenu.prevent="navBarHandler($event)"
       >
@@ -88,6 +88,7 @@
       v-model="drawer"
       app
       fixed
+      :class="['surfbee-drawer', settings.is_dark_theme ? 'surfbee-drawer--dark' : 'surfbee-drawer--light']"
       @input="drawerEvent"
     >
       <v-container
@@ -97,10 +98,10 @@
         @click="goHome"
       >
         <v-img
-          alt="Blue Robotics Logo"
-          class="shrink mr-2"
+          alt="Surfbee Logo"
+          class="shrink mr-2 surfbee-logo"
           contain
-          :src="blueos_logo"
+          :src="brand_logo"
           width="70%"
         />
       </v-container>
@@ -116,6 +117,32 @@
         class="pa-1"
       >
         <v-divider />
+        <v-sheet
+          v-if="!settings.is_pirate_mode"
+          class="pa-3 mb-3 surfbee-extension-toggle"
+          elevation="0"
+          rounded
+        >
+          <div class="d-flex align-center justify-space-between">
+            <div class="mr-3">
+              <div class="font-weight-medium">
+                Extensions stay hidden in normal mode.
+              </div>
+              <div class="caption">
+                Temporarily reveal them without enabling Pirate Mode.
+              </div>
+            </div>
+            <v-btn
+              small
+              class="surfbee-extension-toggle__btn"
+              color="primary"
+              depressed
+              @click="toggleExtensionsVisibility"
+            >
+              {{ extensionToggleLabel }}
+            </v-btn>
+          </div>
+        </v-sheet>
         <v-list
           v-for="(menu, i) in computed_menu"
           :key="i"
@@ -400,8 +427,7 @@
 <script lang="ts">
 import Vue, { defineAsyncComponent } from 'vue'
 
-import blueos_blue from '@/assets/img/blueos-logo-blue.svg'
-import blueos_white from '@/assets/img/blueos-logo-white.svg'
+import surfbeeLogo from '@/assets/img/surfbee-logo.png'
 import consoleLogger from '@/libs/console-logger'
 import settings from '@/libs/settings'
 import helper from '@/store/helper'
@@ -554,6 +580,12 @@ export default Vue.extend({
     svg_outside_style(): string {
       return `mr-0 ${settings.is_dark_theme ? 'outside-svg-dark' : 'outside-svg-light'}`
     },
+    shouldShowExtensions(): boolean {
+      return settings.is_pirate_mode || settings.show_extensions_in_normal_mode
+    },
+    extensionToggleLabel(): string {
+      return settings.show_extensions_in_normal_mode ? 'Hide extensions' : 'Show extensions'
+    },
     computed_menu(): menuItem[] {
       const foundExtensions = helper.services
         .filter((service: Service) : boolean => service.metadata !== null)
@@ -587,7 +619,9 @@ export default Vue.extend({
         ...foundExtensions,
       ] as menuItem[]
 
-      return [...filteredDefaultMenu, ...extensions].sort((a, b) => a.title.localeCompare(b.title))
+      const visibleExtensions = this.shouldShowExtensions ? extensions : []
+
+      return [...filteredDefaultMenu, ...visibleExtensions].sort((a, b) => a.title.localeCompare(b.title))
     },
     steps() {
       return [
@@ -766,8 +800,8 @@ export default Vue.extend({
     build_date(): string {
       return import.meta.env.VITE_BUILD_DATE
     },
-    blueos_logo(): string {
-      return settings.is_dark_theme ? blueos_white : blueos_blue
+    brand_logo(): string {
+      return surfbeeLogo
     },
   },
 
@@ -895,6 +929,9 @@ export default Vue.extend({
       this.build_clicks = 0
       settings.is_dev_mode = false
     },
+    toggleExtensionsVisibility(): void {
+      settings.show_extensions_in_normal_mode = !settings.show_extensions_in_normal_mode
+    },
     setStartTour(value: boolean): void {
       this.start_tour = value
     },
@@ -944,6 +981,48 @@ span.build_info {
   font-size: 70%;
   margin-left: 30px;
   display: block;
+}
+
+.surfbee-app-bar {
+  color: #E8F4F8;
+  box-shadow: 0 6px 16px rgba(12, 74, 110, 0.25);
+}
+
+.surfbee-logo {
+  filter: drop-shadow(0 4px 12px rgba(3, 27, 46, 0.35));
+}
+
+.surfbee-extension-toggle {
+  border: 1px solid rgba(232, 244, 248, 0.25);
+  background: rgba(12, 74, 110, 0.35);
+  color: #E8F4F8;
+}
+
+.surfbee-extension-toggle .caption {
+  color: rgba(232, 244, 248, 0.85);
+}
+
+.surfbee-extension-toggle__btn {
+  background: #E8F4F8 !important;
+  color: #0C4A6E !important;
+  font-weight: 700;
+  text-transform: none;
+}
+
+.surfbee-drawer--light .surfbee-extension-toggle {
+  background: rgba(232, 244, 248, 0.85);
+  border-color: rgba(12, 74, 110, 0.15);
+  color: #0C4A6E;
+}
+
+.surfbee-drawer--light .surfbee-extension-toggle .caption {
+  color: #0C4A6E;
+  opacity: 0.75;
+}
+
+.surfbee-drawer--light .surfbee-extension-toggle__btn {
+  background: #0EA5E9 !important;
+  color: #E8F4F8 !important;
 }
 
 #current-version {
@@ -1013,35 +1092,79 @@ div.pirate-marker.v-icon {
 }
 
 .light-background {
-  background-color: var(--v-br_blue-base) !important;
-  background-image: linear-gradient(160deg, var(--v-br_blue-base) 0%, var(--v-mariner_blue-base) 100%) !important;
+  background-color: #E8F4F8 !important;
+  background-image: linear-gradient(180deg, #E8F4F8 0%, #CDECFB 45%, #0EA5E9 100%) !important;
+  color: #0C4A6E;
 }
 
 .dark-background {
-  background-color: var(--v-mariner_blue-base) !important;
-  background-image: linear-gradient(160deg, var(--v-mariner_blue-base) 0%, var(--v-blue_whale-base) 100%) !important;
+  background-color: #0C4A6E !important;
+  background-image: linear-gradient(180deg, #0C4A6E 0%, #06273D 50%, #021726 100%) !important;
+  color: #E8F4F8;
 }
 
 .light-background-glass {
-  /*
-    It's not possible for us to get the color as variables and set a transparency on it,
-    so we use the colors directly
-  */
-  background-color: #2699D055 !important;
-  background-image: linear-gradient(160deg, #2699D088 0%, #135DA388 100%) !important;
-  backdrop-filter: blur(4.5px) !important;
-  -webkit-backdrop-filter: blur(10px) !important;
+  background-color: rgba(14, 165, 233, 0.82) !important;
+  background-image: linear-gradient(90deg, rgba(14, 165, 233, 0.9) 0%, rgba(20, 184, 166, 0.76) 100%) !important;
+  backdrop-filter: blur(6px) !important;
+  -webkit-backdrop-filter: blur(6px) !important;
+  color: #E8F4F8;
 }
 
 .dark-background-glass {
-  /*
-    It's not possible for us to get the color as variables and set a transparency on it,
-    so we use the colors directly
-  */
-  background-color: #135DA355 !important;
-  background-image: linear-gradient(160deg, #135DA388 0%, #012F4688 100%) !important;
-  backdrop-filter: blur(4.5px) !important;
-  -webkit-backdrop-filter: blur(10px) !important;
+  background-color: rgba(12, 74, 110, 0.85) !important;
+  background-image: linear-gradient(90deg, rgba(12, 74, 110, 0.9) 0%, rgba(14, 165, 233, 0.65) 100%) !important;
+  backdrop-filter: blur(6px) !important;
+  -webkit-backdrop-filter: blur(6px) !important;
+  color: #E8F4F8;
+}
+
+.surfbee-drawer {
+  background: linear-gradient(180deg, #0EA5E9 0%, #0C4A6E 60%, #072B42 100%) !important;
+  color: #E8F4F8;
+}
+
+.surfbee-drawer--light {
+  background: linear-gradient(180deg, #E8F4F8 0%, #CDECFB 42%, #0EA5E9 100%) !important;
+  color: #0C4A6E;
+}
+
+.surfbee-drawer .v-list-item__title,
+.surfbee-drawer .v-list-item__subtitle,
+.surfbee-drawer .v-icon,
+.surfbee-drawer .v-chip,
+.surfbee-drawer .build_info,
+.surfbee-drawer a {
+  color: #E8F4F8 !important;
+}
+
+.surfbee-drawer--light .v-list-item__title,
+.surfbee-drawer--light .v-list-item__subtitle,
+.surfbee-drawer--light .v-icon,
+.surfbee-drawer--light .v-chip,
+.surfbee-drawer--light .build_info,
+.surfbee-drawer--light a {
+  color: #0C4A6E !important;
+}
+
+.surfbee-drawer .v-list-item--active {
+  background-color: rgba(20, 184, 166, 0.18) !important;
+}
+
+.surfbee-drawer .v-list-item:hover {
+  background-color: rgba(232, 244, 248, 0.08);
+}
+
+.surfbee-drawer .v-divider {
+  border-color: rgba(232, 244, 248, 0.2);
+}
+
+.surfbee-drawer--light .v-list-item--active {
+  background-color: rgba(12, 74, 110, 0.12) !important;
+}
+
+.surfbee-drawer--light .v-list-item:hover {
+  background-color: rgba(12, 74, 110, 0.06);
 }
 
 /* Global style */

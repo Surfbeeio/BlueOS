@@ -44,6 +44,16 @@ class Settings {
   }
 
   // eslint-disable-next-line
+  get show_extensions_in_normal_mode(): boolean {
+    return settingsStore.show_extensions_in_normal_mode
+  }
+
+  // eslint-disable-next-line
+  set show_extensions_in_normal_mode(value: boolean) {
+    settingsStore.setShowExtensionsInNormalMode(value)
+  }
+
+  // eslint-disable-next-line
   get last_version_update_notification_time(): Date {
     const time = settingsStore.last_version_update_notification_time
     return time ? new Date(time) : new Date(0)
