@@ -458,9 +458,6 @@ import { TopBarWidget } from './types/common'
 import Cpu from './widgets/Cpu.vue'
 import Disk from './widgets/Disk.vue'
 import Networking from './widgets/Networking.vue'
-
-
-
 export default Vue.extend({
   name: 'App',
 
