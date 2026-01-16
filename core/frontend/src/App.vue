@@ -901,9 +901,6 @@ export default Vue.extend({
       this.build_clicks = 0
       settings.is_dev_mode = false
     },
-    toggleExtensionsVisibility(): void {
-      settings.show_extensions_in_normal_mode = !settings.show_extensions_in_normal_mode
-    },
     setStartTour(value: boolean): void {
       this.start_tour = value
     },
