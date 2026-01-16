@@ -117,24 +117,6 @@
         class="pa-1"
       >
         <v-divider />
-        <v-sheet
-          v-if="!settings.is_pirate_mode"
-          class="pa-3 mb-3 surfbee-extension-toggle"
-          elevation="0"
-          rounded
-        >
-          <div class="d-flex align-center justify-space-between">
-            <v-btn
-              small
-              class="surfbee-extension-toggle__btn"
-              color="primary"
-              depressed
-              @click="toggleExtensionsVisibility"
-            >
-              {{ extensionToggleLabel }}
-            </v-btn>
-          </div>
-        </v-sheet>
         <v-list
           v-for="(menu, i) in computed_menu"
           :key="i"
@@ -574,9 +556,6 @@ export default Vue.extend({
     },
     shouldShowExtensions(): boolean {
       return settings.is_pirate_mode || settings.show_extensions_in_normal_mode
-    },
-    extensionToggleLabel(): string {
-      return settings.show_extensions_in_normal_mode ? 'Hide extensions' : 'Show extensions'
     },
     computed_menu(): menuItem[] {
       const foundExtensions = helper.services
