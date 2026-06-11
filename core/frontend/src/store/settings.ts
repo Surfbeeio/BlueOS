@@ -30,6 +30,8 @@ class SettingsStore extends VuexModule {
 
   user_top_widgets = [] as string[]
 
+  show_extensions_in_normal_mode = false
+
   @Mutation
   setDarkTheme(value: boolean): void {
     this.is_dark_theme = value
@@ -41,6 +43,7 @@ class SettingsStore extends VuexModule {
     this.is_pirate_mode = value
     if (!value) {
       this.is_dev_mode_enabled = false
+      this.show_extensions_in_normal_mode = false
     }
     SettingsStore.save()
   }
@@ -66,6 +69,12 @@ class SettingsStore extends VuexModule {
   @Mutation
   setTopWidgets(widgets: string[]): void {
     this.user_top_widgets = widgets
+    SettingsStore.save()
+  }
+
+  @Mutation
+  setShowExtensionsInNormalMode(value: boolean): void {
+    this.show_extensions_in_normal_mode = value
     SettingsStore.save()
   }
 
