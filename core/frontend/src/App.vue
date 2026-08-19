@@ -592,9 +592,10 @@ export default Vue.extend({
         ...foundExtensions,
       ] as menuItem[]
 
+      const allowedExtensions = ['sonarview', 'nexus']
       const visibleExtensions = this.shouldShowExtensions
         ? extensions
-        : extensions.filter((ext) => (ext.title ?? '').toLowerCase() === 'sonarview')
+        : extensions.filter((ext) => allowedExtensions.includes((ext.title ?? '').toLowerCase()))
       return [...filteredDefaultMenu, ...visibleExtensions].sort((a, b) => a.title.localeCompare(b.title))
     },
     steps() {
