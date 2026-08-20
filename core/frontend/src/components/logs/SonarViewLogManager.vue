@@ -139,6 +139,15 @@ export default Vue.extend({
         await Promise.allSettled(log_folders.map(async (folder_path) => {
           const folder = await filebrowser.fetchFolder(folder_path)
           Array.prototype.push.apply(new_logs, folder.items)
+
+          // SonarView writes each recording into a folder named after the
+          // session that produced it, so the logs sit one level below the root
+          // rather than in it. Descend into those folders as well. Items carry
+          // their own absolute path, so downloads still resolve correctly.
+          await Promise.allSettled(folder.items.filter((item) => item.isDir).map(async (session) => {
+            const session_folder = await filebrowser.fetchFolder(session.path)
+            Array.prototype.push.apply(new_logs, session_folder.items)
+          }))
         }))
       } catch (_) {
         // We are going to ignore the error as described on the first comment and
@@ -146,11 +155,15 @@ export default Vue.extend({
       }
 
       this.logs_fetched = true
-      // Filter for .svlog files only
+      // Filter for SonarView recordings only. They are written as .svlz;
+      // .svlog is kept as well so anything older still shows up. This also
+      // discards the directory entries picked up above, and the config.json /
+      // errlog.jsonl files that live alongside the session folders.
+      const log_extensions = ['.svlz', '.svlog']
       this.available_logs = new_logs.filter(
         (log) => {
           const ext = log.extension.toLowerCase()
-          return ext === '.svlog' && log.size > 0
+          return log_extensions.includes(ext) && log.size > 0
         },
       )
     },
