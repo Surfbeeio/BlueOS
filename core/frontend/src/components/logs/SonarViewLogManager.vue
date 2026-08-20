@@ -38,7 +38,7 @@
           v-model="selected_logs"
           :headers="headers"
           :items="parsed_logs"
-          item-key="name"
+          item-key="path"
           show-select
           :sort-by.sync="sortBy"
           :sort-desc.sync="sortDesc"
@@ -77,6 +77,26 @@ import { prettifySize } from '@/utils/helper_functions'
 
 import SpinningLogo from '../common/SpinningLogo.vue'
 
+/* Root that SonarView writes its recordings under. Must match the directory's
+   real case: the extension binds /usr/blueos/userdata/SonarView, and filebrowser
+   reaches it through the /shortcuts/userdata symlink, so a lowercase path simply
+   does not exist. */
+const SONARVIEW_LOG_ROOT = '/userdata/SonarView'
+
+/* A recording lives at <root>/<session>/<file>, so its session is the name of
+   the folder holding it. Anything found directly in the root has no session
+   folder, and gets a dash rather than an invented name. */
+function sessionFromPath(path: string): string {
+  const relative = path.startsWith(`${SONARVIEW_LOG_ROOT}/`)
+    ? path.slice(SONARVIEW_LOG_ROOT.length + 1)
+    : path
+  const segments = relative.split('/')
+  return segments.length > 1 ? segments[0] : '—'
+}
+
+/* A recording plus the session folder it came from. */
+type SonarViewLog = FilebrowserFile & { session: string }
+
 export default Vue.extend({
   name: 'SonarViewLogManager',
   components: {
@@ -90,6 +110,11 @@ export default Vue.extend({
       logs_fetched: false,
       selected_logs: [] as FilebrowserFile[],
       headers: [
+        {
+          text: 'Session',
+          align: 'start',
+          value: 'session',
+        },
         {
           text: 'Name',
           align: 'start',
@@ -112,9 +137,10 @@ export default Vue.extend({
     disable_batch_operations(): boolean {
       return this.selected_logs.isEmpty()
     },
-    parsed_logs(): FilebrowserFile[] {
+    parsed_logs(): SonarViewLog[] {
       return this.available_logs.map((log) => ({
         ...log,
+        session: sessionFromPath(log.path),
         modified: format(new Date(log.modified), 'yyyy-MM-dd HH:mm:ss'),
       }))
     },
@@ -126,10 +152,7 @@ export default Vue.extend({
     async fetchAvailableLogs(): Promise<void> {
       const new_logs: FilebrowserFile[] = []
 
-      // Must match the directory's real case. The SonarView extension binds
-      // /usr/blueos/userdata/SonarView, and filebrowser reaches it through the
-      // /shortcuts/userdata symlink, so a lowercase path simply does not exist.
-      const log_folders = ['/userdata/SonarView']
+      const log_folders = [SONARVIEW_LOG_ROOT]
 
       // We fetch all paths in parallel and wait for everything to finish
       // If it fails the folder does not exist, we display a 'No data available' message
