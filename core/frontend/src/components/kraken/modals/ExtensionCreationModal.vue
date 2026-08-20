@@ -162,7 +162,13 @@ export default Vue.extend({
       this.$emit('input', this.new_extension)
     },
     new_permissions(new_permissions: string) {
-      this.new_extension.user_permissions = JSON.stringify(new_permissions)
+      // Store '' rather than '{}' for an empty editor. An empty string means
+      // "no override" to the backend, whereas '{}' is a non-empty string and so
+      // overrides the image's permissions label with nothing. Writing '' also
+      // clears a previously poisoned override instead of leaving it in place.
+      this.new_extension.user_permissions = Object.keys(new_permissions ?? {}).length
+        ? JSON.stringify(new_permissions)
+        : ''
     },
     extension() {
       if (this.extension) {
@@ -272,9 +278,13 @@ export default Vue.extend({
       return true
     },
     async saveExtension(): Promise<void> {
-      if (this.new_permissions) {
-        this.new_extension.user_permissions = JSON.stringify(this.new_permissions)
-      }
+      // Same empty-object trap as the watcher: `if (this.new_permissions)` was
+      // true even for {}, so Save persisted user_permissions="{}" and overrode
+      // the image's permissions label with nothing. Write '' for an empty
+      // editor so the label is used instead.
+      this.new_extension.user_permissions = Object.keys(this.new_permissions ?? {}).length
+        ? JSON.stringify(this.new_permissions)
+        : ''
       if (this.form.validate() === true) {
         this.$emit('extensionChange', this.new_extension)
       }
