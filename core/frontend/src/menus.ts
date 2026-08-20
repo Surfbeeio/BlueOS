@@ -64,7 +64,7 @@ const menus = [
     icon: 'mdi-file-download',
     route: '/vehicle/sonarview-logs',
     advanced: false,
-    text: 'Browse and download SonarView log files from /userdata/sonarview directory.',
+    text: 'Browse and download SonarView log files from /userdata/SonarView directory.',
   },
   {
     title: 'MAVLink Endpoints',

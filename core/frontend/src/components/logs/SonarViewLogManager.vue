@@ -126,7 +126,10 @@ export default Vue.extend({
     async fetchAvailableLogs(): Promise<void> {
       const new_logs: FilebrowserFile[] = []
 
-      const log_folders = ['/userdata/sonarview']
+      // Must match the directory's real case. The SonarView extension binds
+      // /usr/blueos/userdata/SonarView, and filebrowser reaches it through the
+      // /shortcuts/userdata symlink, so a lowercase path simply does not exist.
+      const log_folders = ['/userdata/SonarView']
 
       // We fetch all paths in parallel and wait for everything to finish
       // If it fails the folder does not exist, we display a 'No data available' message

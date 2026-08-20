@@ -187,11 +187,14 @@ export default Vue.extend({
     populatePermissions() {
       const user_permissions = JSON.parse(this.extension?.user_permissions || '{}')
       const original_permissions = JSON.parse(this.extension?.permissions || '{}')
-      if (user_permissions) {
-        this.new_permissions = user_permissions
-      } else {
-        this.new_permissions = original_permissions
-      }
+      // Check for keys, not truthiness: JSON.parse('{}') is an empty object,
+      // and an empty object is truthy. A plain `if (user_permissions)` therefore
+      // always took this branch and loaded {} into the editor, discarding the
+      // image's real permissions. Saving then persisted user_permissions="{}",
+      // which overrode the label and produced a container with no HostConfig.
+      this.new_permissions = Object.keys(user_permissions).length
+        ? user_permissions
+        : original_permissions
     },
     closeDialog() {
       this.new_extension = {

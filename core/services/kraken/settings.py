@@ -23,7 +23,15 @@ class ExtensionSettings(JsonObject):
 
     def settings(self) -> Any:
         if self.user_permissions:
-            return json.loads(self.user_permissions)
+            user_permissions = json.loads(self.user_permissions)
+            # An empty dict is not a real override, so fall through to the
+            # image's own permissions label. Honouring it would create the
+            # container with no HostConfig at all: not privileged, no binds,
+            # no ExtraHosts. That is unrecoverable from the UI and every
+            # symptom it produces points somewhere else, so treat "{}" as
+            # "unset" rather than "deliberately empty".
+            if user_permissions:
+                return user_permissions
         return json.loads(self.permissions)
 
     def is_valid(self) -> bool:

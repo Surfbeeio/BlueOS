@@ -876,7 +876,10 @@ export default Vue.extend({
       if (service.metadata?.works_in_relative_paths) {
         return `/extensionv2/${service.metadata.sanitized_name}/`
       }
-      let address = `/extension/${service?.metadata?.sanitized_name}`
+      // nginx only serves `/extensionv2/`; there is no `/extension/` location,
+      // so the old path 404'd for every extension that does not set
+      // works_in_relative_paths - which includes SonarView and Nexus.
+      let address = `/extensionv2/${service?.metadata?.sanitized_name}/`
       if (service?.metadata?.new_page) {
         address += '?full_page=true'
       }
