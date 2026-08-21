@@ -869,21 +869,20 @@ export default Vue.extend({
       }
     },
     createExtensionAddress(service: Service): string {
-      if (service.metadata?.avoid_iframes) {
+      // Only an extension that declares works_in_relative_paths can be served
+      // from a subpath. Everything else has to be reached directly on its own
+      // port, because such an app emits absolute asset URLs: served under
+      // /extensionv2/<name>/ its HTML loads but the browser then requests
+      // /assets/... from the site root, gets a 404, and renders a blank page.
+      //
+      // The previous code used a /extension/<name> path here, which nginx does
+      // not serve at all - it only has "location ^~ /extensionv2/" - so those
+      // extensions 404'd outright instead.
+      if (service.metadata?.avoid_iframes || !service.metadata?.works_in_relative_paths) {
         const base_url = window.location.origin.split(':').slice(0, 2).join(':')
         return `${base_url}:${service.port}`
       }
-      if (service.metadata?.works_in_relative_paths) {
-        return `/extensionv2/${service.metadata.sanitized_name}/`
-      }
-      // nginx only serves `/extensionv2/`; there is no `/extension/` location,
-      // so the old path 404'd for every extension that does not set
-      // works_in_relative_paths - which includes SonarView and Nexus.
-      let address = `/extensionv2/${service?.metadata?.sanitized_name}/`
-      if (service?.metadata?.new_page) {
-        address += '?full_page=true'
-      }
-      return address
+      return `/extensionv2/${service.metadata.sanitized_name}/`
     },
     setupCallbacks(): void {
       this.tourCallbacks = {
