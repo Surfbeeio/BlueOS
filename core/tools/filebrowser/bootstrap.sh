@@ -71,8 +71,18 @@ filebrowser users add pi raspberry --database="$DATABASE_PATH"
 # filtering the instance above would re-root and filter the main File Browser
 # page along with it, so the only way to give the SonarView Logs page its own
 # home directory is to run a second one.
+# Root at the real path, never at anything under /shortcuts. This script runs
+# well before the Dockerfile creates the /shortcuts symlinks, and `config init`
+# creates its root if missing - so rooting under /shortcuts would materialise
+# /shortcuts/userdata as a real directory here, and the later
+# `ln -s /usr/blueos/userdata /shortcuts/userdata` would then land *inside* it
+# rather than becoming it, breaking the main File Browser's userdata shortcut.
+#
+# /usr/blueos/userdata is bind-mounted at runtime, so the directory created here
+# is masked by the mount and the live recordings folder is what gets served.
 SONARVIEW_DATABASE_PATH="/etc/filebrowser/sonarview.db"
-filebrowser config init --address=0.0.0.0 --port=7778 --auth.method=noauth --log=stdout --root=/shortcuts/userdata/SonarView --database="$SONARVIEW_DATABASE_PATH"
+mkdir -p /usr/blueos/userdata/SonarView
+filebrowser config init --address=0.0.0.0 --port=7778 --auth.method=noauth --log=stdout --root=/usr/blueos/userdata/SonarView --database="$SONARVIEW_DATABASE_PATH"
 filebrowser users add pi raspberry --database="$SONARVIEW_DATABASE_PATH"
 
 # Hide the config and error-log files that sit alongside the recordings, so the
