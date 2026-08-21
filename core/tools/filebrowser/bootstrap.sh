@@ -64,4 +64,21 @@ mkdir -p "$(dirname $DATABASE_PATH)"
 filebrowser config init --address=0.0.0.0 --port=7777 --auth.method=noauth --log=stdout --root=/shortcuts --database="$DATABASE_PATH"
 filebrowser users add pi raspberry --database="$DATABASE_PATH"
 
+# A second instance, rooted at SonarView's recordings folder.
+#
+# This needs its own database because filebrowser's root and its access rules
+# are properties of the instance and its user, not of a URL. Re-rooting or
+# filtering the instance above would re-root and filter the main File Browser
+# page along with it, so the only way to give the SonarView Logs page its own
+# home directory is to run a second one.
+SONARVIEW_DATABASE_PATH="/etc/filebrowser/sonarview.db"
+filebrowser config init --address=0.0.0.0 --port=7778 --auth.method=noauth --log=stdout --root=/shortcuts/userdata/SonarView --database="$SONARVIEW_DATABASE_PATH"
+filebrowser users add pi raspberry --database="$SONARVIEW_DATABASE_PATH"
+
+# Hide the config and error-log files that sit alongside the recordings, so the
+# page shows only the per-session folders and the .svlz files inside them. This
+# is a deny rule (no --allow) scoped to this database, so the main File Browser
+# still shows everything.
+filebrowser rules add --regex '\.jsonl?$' --database="$SONARVIEW_DATABASE_PATH"
+
 echo "Finished installing $PROJECT_NAME"

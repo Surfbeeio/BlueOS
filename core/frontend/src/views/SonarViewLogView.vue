@@ -1,6 +1,6 @@
 <template>
   <BrIframe
-    :source="full_path"
+    :source="service_path"
   />
 </template>
 
@@ -9,13 +9,6 @@ import Vue from 'vue'
 
 import BrIframe from '@/components/utils/BrIframe.vue'
 
-/* SonarView writes its recordings under /usr/blueos/userdata/SonarView, one
-   folder per session. Filebrowser reaches that through its /shortcuts/userdata
-   symlink, so this is the same file browser served at /tools/file-browser,
-   just opened at the recordings folder. The path's case must match the
-   directory exactly - the extension binds "SonarView", not "sonarview". */
-const SONARVIEW_LOG_PATH = 'files/userdata/SonarView'
-
 export default Vue.extend({
   name: 'SonarViewLogView',
   components: {
@@ -23,13 +16,18 @@ export default Vue.extend({
   },
   data() {
     return {
-      service_path: '/file-browser/',
+      /* A second filebrowser instance, rooted at SonarView's recordings folder
+         rather than at /shortcuts. That folder is therefore its home directory:
+         the breadcrumb starts there and there is nothing above it to navigate
+         up into. It also carries its own rule hiding the config and error-log
+         files, so only the per-session folders and their .svlz recordings show.
+
+         This needs a separate instance because filebrowser's root and rules
+         belong to the instance, not to a URL - pointing the shared instance at
+         this folder would have re-rooted the main File Browser page too. See
+         core/tools/filebrowser/bootstrap.sh and core/start-blueos-core. */
+      service_path: '/sonarview-browser/',
     }
-  },
-  computed: {
-    full_path() {
-      return `${this.service_path}${SONARVIEW_LOG_PATH}`
-    },
   },
 })
 </script>
