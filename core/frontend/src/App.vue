@@ -869,20 +869,26 @@ export default Vue.extend({
       }
     },
     createExtensionAddress(service: Service): string {
-      // Only an extension that declares works_in_relative_paths can be served
-      // from a subpath. Everything else has to be reached directly on its own
-      // port, because such an app emits absolute asset URLs: served under
-      // /extensionv2/<name>/ its HTML loads but the browser then requests
-      // /assets/... from the site root, gets a 404, and renders a blank page.
-      //
-      // The previous code used a /extension/<name> path here, which nginx does
-      // not serve at all - it only has "location ^~ /extensionv2/" - so those
-      // extensions 404'd outright instead.
-      if (service.metadata?.avoid_iframes || !service.metadata?.works_in_relative_paths) {
+      // Note for anyone tempted to "fix" the /extension/ path below: it is a
+      // client-side route (see router/index.ts), not an nginx location, so
+      // curling it returns 404 while the browser handles it perfectly well.
+      // ExtensionView then resolves the iframe itself, using the subpath when
+      // the extension sets works_in_relative_paths and the extension's own
+      // host:port otherwise. Rewriting this to /extensionv2/<name>/ breaks it
+      // twice over: there is no /extensionv2/:name/* wildcard route, so a
+      // trailing slash matches nothing and renders a blank page.
+      if (service.metadata?.avoid_iframes) {
         const base_url = window.location.origin.split(':').slice(0, 2).join(':')
         return `${base_url}:${service.port}`
       }
-      return `/extensionv2/${service.metadata.sanitized_name}/`
+      if (service.metadata?.works_in_relative_paths) {
+        return `/extensionv2/${service.metadata.sanitized_name}/`
+      }
+      let address = `/extension/${service?.metadata?.sanitized_name}`
+      if (service?.metadata?.new_page) {
+        address += '?full_page=true'
+      }
+      return address
     },
     setupCallbacks(): void {
       this.tourCallbacks = {
