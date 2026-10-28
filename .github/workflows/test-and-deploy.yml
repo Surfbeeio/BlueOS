@@ -49,6 +49,7 @@ jobs:
       with:
         name: coverage
         path: ./core/htmlcov
+        retention-days: 1
 
 
   frontend-tests:
@@ -205,6 +206,7 @@ jobs:
         with:
           name: Surfbee-core-docker-image-arm64-v8
           path: '*arm64-v8.tar'
+          retention-days: 1
 
       - name: Create image artifact
         if: success() && matrix.docker == 'core'
@@ -223,6 +225,7 @@ jobs:
         with:
           name: Surfbee-core-docker-image-arm-v7
           path: '*arm-v7.tar'
+          retention-days: 1
 
       - name: Create image artifact
         if: success() && matrix.docker == 'core'
@@ -241,6 +244,7 @@ jobs:
         with:
           name: Surfbee-core-docker-image-amd64
           path: '*amd64.tar'
+          retention-days: 1
 
       - name: Upload docker image for release
         uses: svenstaro/upload-release-action@v2
@@ -366,7 +370,7 @@ jobs:
           name: Surfbee-raspberry-${{ env.GITHUB_REF_NAME }}${{ env.SANITIZED_PLATFORM }}-${{ matrix.os }}${{ env.ASSET_NAME_SUFFIX }}
           path: Surfbee-raspberry-${{ env.SANITIZED_PLATFORM }}-${{ matrix.os }}${{ env.ASSET_NAME_SUFFIX }}.z*
           if-no-files-found: error
-          retention-days: 7
+          retention-days: 1
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v6
