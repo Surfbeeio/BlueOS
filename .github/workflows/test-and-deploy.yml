@@ -45,6 +45,7 @@ jobs:
       with:
         name: coverage
         path: ./core/htmlcov
+        retention-days: 1
 
 
   frontend-tests:
@@ -201,6 +202,7 @@ jobs:
         with:
           name: BlueOS-core-docker-image-arm64-v8
           path: '*arm64-v8.tar'
+          retention-days: 1
 
       - name: Create image artifact
         if: success() && matrix.docker == 'core'
@@ -219,6 +221,7 @@ jobs:
         with:
           name: BlueOS-core-docker-image-arm-v7
           path: '*arm-v7.tar'
+          retention-days: 1
 
       - name: Create image artifact
         if: success() && matrix.docker == 'core'
@@ -237,6 +240,7 @@ jobs:
         with:
           name: BlueOS-core-docker-image-amd64
           path: '*amd64.tar'
+          retention-days: 1
 
       - name: Upload docker image for release
         uses: svenstaro/upload-release-action@v2
