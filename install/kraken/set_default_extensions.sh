@@ -10,6 +10,26 @@ BLUEOS_PROXY_TAG="v1.0.6"
 docker pull "nicknothom/sonarview:$SONARVIEW_TAG"
 docker pull "williangalvani/blueos-extension-proxy:$BLUEOS_PROXY_TAG"
 
+# Nexus Plus isn't on a registry, install.sh loads it from the archive CI embeds when there is one
+NEXUS_EXTENSION=""
+if docker image inspect nexus-plus:dev > /dev/null 2>&1; then
+  NEXUS_EXTENSION=$(cat <<'EOF'
+,
+    {
+      "docker": "nexus-plus",
+      "enabled": true,
+      "identifier": "io.surfbee.nexus-plus",
+      "name": "Nexus Plus",
+      "permissions": "{\"ExposedPorts\": {\"80/tcp\": {}, \"6842/udp\": {}, \"6404/tcp\": {}}, \"HostConfig\": {\"Privileged\": true, \"Binds\": [\"/dev:/dev:rw\", \"/boot/firmware/overlays:/boot/firmware/overlays:ro\", \"/sys/kernel/config:/sys/kernel/config:rw\", \"/usr/blueos/userdata/nexus:/userdata:rw\", \"/boot/firmware:/boot/firmware:rw\"], \"ExtraHosts\": [\"host.docker.internal:host-gateway\"], \"PortBindings\": {\"80/tcp\": [{\"HostPort\": \"\"}], \"6842/udp\": [{\"HostPort\": \"6842/udp\"}], \"6404/tcp\": [{\"HostPort\": \"6404/tcp\"}]}}}",
+      "tag": "dev",
+      "user_permissions": ""
+    }
+EOF
+)
+else
+  echo "Nexus Plus image not found, leaving it out of the default extensions."
+fi
+
 # Settings creation
 
 SETTINGS_BASE_DIR="/root/.config/blueos/kraken"
@@ -45,7 +65,7 @@ cat > "${SETTINGS_BASE_DIR}/settings-2.json" <<EOF
       "permissions": "{\"ExposedPorts\":{},\"HostConfig\":{\"Binds\":[\"/usr/blueos/userdata/blueos-proxy/:/usr/blueos/userdata/blueos-proxy/\"],\"NetworkMode\":\"host\"}}",
       "tag": "$BLUEOS_PROXY_TAG",
       "user_permissions": ""
-    }
+    }${NEXUS_EXTENSION}
   ],
   "manifests": []
 }

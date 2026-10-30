@@ -301,6 +301,33 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/')
         run: sudo pip3 install awscli --break-system-packages || sudo pip3 install awscli
 
+      # Nexus Plus lives in a private repo and isn't on a registry, so the latest build of the NEXUS_BRANCH repository
+      # variable (nav-rail-restyle by default, main's build is broken) is embedded as an archive.
+      # That build always uses the placeholder OTA key, the real one never leaves the developer's machine.
+      - name: Fetch Nexus Plus extension
+        env:
+          NEXUS_REPO_TOKEN: ${{ secrets.NEXUS_REPO_TOKEN }}
+          NEXUS_BRANCH: ${{ vars.NEXUS_BRANCH || 'nav-rail-restyle' }}
+        run: |
+          mkdir -p deploy/pimod/images
+          if [ -z "$NEXUS_REPO_TOKEN" ]; then
+            echo "::warning::NEXUS_REPO_TOKEN is not set, building the image without Nexus Plus"
+            exit 0
+          fi
+          API=https://api.github.com/repos/Surfbeeio/Data_Logger_Firmware/actions
+          AUTH="Authorization: Bearer $NEXUS_REPO_TOKEN"
+          ARTIFACT=$(curl -fsSL -H "$AUTH" "$API/artifacts?per_page=100" | jq -c '[.artifacts[]
+            | select((.name | startswith("nexus_plus-")) and (.expired | not) and .workflow_run.head_branch == env.NEXUS_BRANCH)][0]')
+          if [ "$ARTIFACT" = "null" ]; then
+            echo "::error::No unexpired nexus_plus artifact from Data_Logger_Firmware $NEXUS_BRANCH, re-run its build first"
+            exit 1
+          fi
+          echo "Using $(echo "$ARTIFACT" | jq -r '.name') from $(echo "$ARTIFACT" | jq -r '.created_at')"
+          curl -fsSL -H "$AUTH" -o nexus_plus.zip "$(echo "$ARTIFACT" | jq -r '.archive_download_url')"
+          unzip -o nexus_plus.zip -d deploy/pimod/images
+          rm nexus_plus.zip
+          ls -lh deploy/pimod/images
+
       # We use our own pimod as upstream doesn't provide armv7 images
       - name: Pimod Build
         run: |

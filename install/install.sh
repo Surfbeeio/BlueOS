@@ -265,11 +265,30 @@ if [ -f "$STARTUP_JSON" ]; then
         -e "s|\"tag\": \"[^\"]*\"|\"tag\": \"${BLUEOS_CORE##*:}\"|" "$STARTUP_JSON"
 fi
 
+# Extension images that aren't on a public registry, embedded in the image by CI
+for image_archive in /root/blueos-images/*.tar; do
+    [ -f "$image_archive" ] && docker load -i "$image_archive"
+done
+
 # Set up default extensions
 curl -fsSL $ROOT/install/kraken/set_default_extensions.sh | bash
 
 echo "Installing default userdata."
-for file in SonarView/config.json SonarView/os3d_config.json blueos-proxy/file.txt modeloverrides/ALL.glb; do
+USERDATA_FILES=(
+    SonarView/config.json
+    SonarView/os3d_config.json
+    blueos-proxy/file.txt
+    modeloverrides/ALL.glb
+    nexus/mavlink_router.conf
+    nexus/nvs/params/AP_Baud
+    nexus/nvs/params/DoLogPing
+    nexus/nvs/params/DoLogPower
+    nexus/nvs/params/PortABaud
+    nexus/nvs/params/PortAMode
+    nexus/nvs/params/Power_Log_Hz
+    nexus/nvs/params/Run_Stats_En
+)
+for file in "${USERDATA_FILES[@]}"; do
     mkdir -p "/usr/blueos/userdata/$(dirname $file)"
     curl -fsSL "$ROOT/install/userdata/$file" -o "/usr/blueos/userdata/$file"
 done
