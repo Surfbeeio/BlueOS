@@ -1,47 +1,14 @@
 #!/usr/bin/env bash
 
-# Extensions data fetch, use for Extensions that are synced by some online source
+# Versions are pinned: newer SonarView releases broke the dual Omniscan 3D setup that works on 1.14.83
 
-COCKPIT_RELEASE_URL="https://api.github.com/repos/bluerobotics/cockpit/releases/latest"
-MAJOR_TOM_RELEASE_URL="https://blueos.cloud/major_tom/install"
-
-alias curl="curl --retry 6 --max-time 15 --retry-all-errors --retry-delay 20 --connect-timeout 60"
-
-response=$(curl -fsSL $COCKPIT_RELEASE_URL)
-
-if [[ $response =~ \"tag_name\":\ *\"([^\"]+)\" ]]; then
-  cockpit_tag_name="${BASH_REMATCH[1]}"
-  echo "Using cockpit tag: $cockpit_tag_name"
-else
-  echo "Could not find the latest release tag of Cockpit."
-  exit 1
-fi
-
-major_tom_install_data=$(curl -fsSL --connect-timeout 60 --max-time 60 --retry 5 --retry-delay 20 $MAJOR_TOM_RELEASE_URL)
-
-if [[ $major_tom_install_data =~  \"docker\":\ *\"([^\"]+)\" ]]; then
-  major_tom_docker="${BASH_REMATCH[1]}"
-else
-  echo "Could not find the latest release docker value of Major Tom."
-  exit 1
-fi
-
-if [[ $major_tom_install_data =~  \"tag\":\ *\"([^\"]+)\" ]]; then
-  major_tom_tag="${BASH_REMATCH[1]}"
-else
-  echo "Could not find the latest release tag value of Major Tom."
-  exit 1
-fi
-
-echo "Using major tom: $major_tom_docker:$major_tom_tag"
+SONARVIEW_TAG="1.14.83"
+BLUEOS_PROXY_TAG="v1.0.6"
 
 # Images pulling
 
-BLUEROBOTICS_COCKPIT_EXT="bluerobotics/cockpit:$cockpit_tag_name"
-BLUEROBOTICS_MAJOR_TOM_EXT="$major_tom_docker:$major_tom_tag"
-
-docker pull $BLUEROBOTICS_COCKPIT_EXT
-echo "Skipping Major Tom image pull (${BLUEROBOTICS_MAJOR_TOM_EXT})"
+docker pull "nicknothom/sonarview:$SONARVIEW_TAG"
+docker pull "williangalvani/blueos-extension-proxy:$BLUEOS_PROXY_TAG"
 
 # Settings creation
 
@@ -62,14 +29,23 @@ cat > "${SETTINGS_BASE_DIR}/settings-2.json" <<EOF
   "VERSION": 2,
   "extensions": [
     {
-      "docker": "bluerobotics/cockpit",
+      "docker": "nicknothom/sonarview",
       "enabled": true,
-      "identifier": "bluerobotics.cockpit",
-      "name": "Cockpit",
-      "permissions": "{\"ExposedPorts\":{\"8000/tcp\":{}},\"HostConfig\":{\"PortBindings\":{\"8000/tcp\":[{\"HostPort\":\"\"}]}}}",
-      "tag": "$cockpit_tag_name",
-      "user_permissions": ""
+      "identifier": "ceruleansonar.sonarview",
+      "name": "SonarView",
+      "permissions": "{\"HostConfig\":{\"NetworkMode\":\"host\",\"Binds\":[\"/usr/blueos/userdata/SonarView:/userdata\"],\"ReadonlyRootfs\":true,\"ExtraHosts\":[\"host.docker.internal:127.0.1.1\",\"blueos.local:127.0.1.1\"]}}",
+      "tag": "$SONARVIEW_TAG",
+      "user_permissions": "{\"Env\":[\"ENABLE_OS3D=false\"],\"HostConfig\":{\"NetworkMode\":\"host\",\"Binds\":[\"/usr/blueos/userdata/SonarView:/userdata\"],\"ReadonlyRootfs\":true,\"ExtraHosts\":[\"host.docker.internal:127.0.1.1\",\"blueos.local:127.0.1.1\"]}}"
     },
+    {
+      "docker": "williangalvani/blueos-extension-proxy",
+      "enabled": true,
+      "identifier": "williangalvani.blueos-proxy",
+      "name": "BlueOS Proxy",
+      "permissions": "{\"ExposedPorts\":{},\"HostConfig\":{\"Binds\":[\"/usr/blueos/userdata/blueos-proxy/:/usr/blueos/userdata/blueos-proxy/\"],\"NetworkMode\":\"host\"}}",
+      "tag": "$BLUEOS_PROXY_TAG",
+      "user_permissions": ""
+    }
   ],
   "manifests": []
 }

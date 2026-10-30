@@ -1,0 +1,18 @@
+{
+   "devices": [
+      {
+         "ax_mac": "00:80:e1:32:10:26",
+         "bx_mac": "00:80:e1:26:03:26",
+         "mount_fsd": {
+            "x_mm": 0,
+            "y_mm": 0,
+            "yaw_deg": 90,
+            "z_mm": 0
+         },
+         "name": "Omniscan 3D Starboard"
+      }
+   ],
+   "enable_revert_to_os450_fw": false,
+   "spoof_ip": "192.168.2.200",
+   "type": "os3d_config"
+}

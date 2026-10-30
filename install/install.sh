@@ -232,15 +232,28 @@ command -v raspi-config && (
 )
 
 echo "Downloading bootstrap"
-BLUEOS_BOOTSTRAP="$DOCKER_USER/blueos-bootstrap:$VERSION" # Use current version
-BLUEOS_CORE="$DOCKER_USER/blueos-core:$VERSION" # We don't have a stable tag yet
+BLUEOS_BOOTSTRAP="${BLUEOS_BOOTSTRAP:-$DOCKER_USER/blueos-bootstrap:$VERSION}" # Use current version
+BLUEOS_CORE="${BLUEOS_CORE:-$DOCKER_USER/blueos-core:$VERSION}" # We don't have a stable tag yet
 BLUEOS_FACTORY="bluerobotics/blueos-core:factory" # used for "factory reset"
 
 docker pull $BLUEOS_BOOTSTRAP
 docker pull $BLUEOS_CORE
 
+# Without this bootstrap would try to pull upstream's core and only fall back to factory after 5 minutes
+STARTUP_JSON="$HOME/.config/blueos/bootstrap/startup.json"
+if [ -f "$STARTUP_JSON" ]; then
+    sed -i -e "s|\"bluerobotics/blueos-core\"|\"${BLUEOS_CORE%:*}\"|" \
+        -e "s|\"tag\": \"[^\"]*\"|\"tag\": \"${BLUEOS_CORE##*:}\"|" "$STARTUP_JSON"
+fi
+
 # Set up default extensions
 curl -fsSL $ROOT/install/kraken/set_default_extensions.sh | bash
+
+echo "Installing default userdata."
+for file in SonarView/config.json SonarView/os3d_config.json blueos-proxy/file.txt modeloverrides/ALL.glb; do
+    mkdir -p "/usr/blueos/userdata/$(dirname $file)"
+    curl -fsSL "$ROOT/install/userdata/$file" -o "/usr/blueos/userdata/$file"
+done
 
 # Use current release version for factory fallback
 docker image tag $BLUEOS_CORE $BLUEOS_FACTORY
