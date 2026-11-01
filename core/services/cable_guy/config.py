@@ -12,6 +12,8 @@ DEFAULT_NETWORK_INTERFACES = [
         addresses=[
             InterfaceAddress(ip="192.168.2.2", mode=AddressMode.BackupServer),
             InterfaceAddress(ip="0.0.0.0", mode=AddressMode.Client),
+            # Surfbee boats reach their radio link, and through it the internet, on 192.168.144.0/24
+            InterfaceAddress(ip="192.168.144.178", mode=AddressMode.Unmanaged),
         ],
         routes=[
             Route(
@@ -19,7 +21,19 @@ DEFAULT_NETWORK_INTERFACES = [
                 gateway=None,
                 priority=None,
                 managed=True,
-            )
+            ),
+            Route(
+                destination=str(IPvAnyNetwork("192.168.144.103/32")),
+                gateway=None,
+                priority=None,
+                managed=True,
+            ),
+            Route(
+                destination=str(IPvAnyNetwork("0.0.0.0/0")),
+                gateway="192.168.144.12",
+                priority=None,
+                managed=True,
+            ),
         ],
     ),
     NetworkInterface(name="usb0", addresses=[InterfaceAddress(ip="192.168.3.1", mode=AddressMode.Server)], routes=[]),
