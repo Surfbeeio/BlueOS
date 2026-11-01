@@ -498,8 +498,8 @@ class NetworkManagerWifi(AbstractWifiManager):
         hashed_id = hashlib.md5(dev_id.encode()).hexdigest()[:6]
 
         return WifiCredentials(
-            ssid=self._settings_manager.settings.hotspot_ssid or f"BlueOS ({hashed_id})",
-            password=self._settings_manager.settings.hotspot_password or "blueosap",
+            ssid=self._settings_manager.settings.hotspot_ssid or f"Surfbee ({hashed_id})",
+            password=self._settings_manager.settings.hotspot_password or "surfbeeap",
         )
 
     async def cleanup(self) -> None:
