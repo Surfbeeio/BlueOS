@@ -293,6 +293,11 @@ for file in "${USERDATA_FILES[@]}"; do
     curl -fsSL "$ROOT/install/userdata/$file" -o "/usr/blueos/userdata/$file"
 done
 
+# The vehicle's radio link expects eth0 at 192.168.144.178, with its gateway at 192.168.144.12
+echo "Installing default network configuration."
+mkdir -p /root/.config/blueos/cable-guy
+curl -fsSL "$ROOT/install/configs/cable-guy-settings-2.json" -o /root/.config/blueos/cable-guy/settings-2.json
+
 # Use current release version for factory fallback
 docker image tag $BLUEOS_CORE $BLUEOS_FACTORY
 
