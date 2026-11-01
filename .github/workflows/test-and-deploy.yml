@@ -264,6 +264,7 @@ jobs:
         include:
           # GitHub-hosted arm64 runners are free for public repos, Surfbeeio has no self-hosted Pi runners
           - runner: ubuntu-24.04-arm
+            board: "bcm_2712"
             platform: "linux/arm64/v8"
             os: "bookworm"
             image: "raspios_lite_arm64/images/raspios_lite_arm64-2024-07-04/2024-07-04-raspios-bookworm-arm64-lite.img.xz"
@@ -340,11 +341,23 @@ jobs:
             -e BASE_IMAGE=${{ matrix.image }} \
             -e BLUEOS_CORE=${DOCKER_USERNAME:-surfbeeio}/surfbee-core:${GITHUB_REF##*/} \
             -e BLUEOS_BOOTSTRAP=${DOCKER_USERNAME:-surfbeeio}/surfbee-bootstrap:${GITHUB_REF##*/} \
+            -e BOARD=${{ matrix.board }} \
             --workdir=/files \
             --platform ${{ matrix.platform }} nature40/pimod:${PIMOD_VERSION} pimod.sh deploy/pimod/blueos.Pifile
 
       - name: Add /boot additions
         run: |
+          # BOARD selects the board install script, so check that the image ended up with the configuration
+          # of the board it was built for.
+          case "${{ matrix.board }}" in
+            bcm_2712)
+              EXPECTED=("[pi5]" "dtoverlay=uart3-pi5" "dtoverlay=i2c3-pi5,baudrate=400000" "dtoverlay=spi1-3cs")
+              ;;
+            *)
+              echo "Unknown board ${{ matrix.board }}, add the board configuration its image must contain."
+              exit 1
+              ;;
+          esac
           sudo apt-get update && sudo apt-get install -y parted kpartx
           # Create mount point if it doesn't exist
           sudo mkdir -p /mnt/piboot
@@ -354,8 +367,27 @@ jobs:
           sudo mount "/dev/mapper/${LOOP_DEVICE}p1" /mnt/piboot
           # Create ssh and userconf files
           sudo cp install/boards/config.toml /mnt/piboot/custom.toml
+          # A board install script writing to the /boot stub instead of the boot partition still exits 0,
+          # so the image itself is the only place where a missing Navigator configuration can be caught.
+          MISSING=()
+          for LINE in "${EXPECTED[@]}"; do
+            sudo grep -qxF "$LINE" /mnt/piboot/config.txt || MISSING+=("config.txt: $LINE")
+          done
+          # cmdline.txt is reached through its own path and can be left behind on its own. Whatever
+          # board this is, the memory cgroup docker needs is enabled and the serial console that
+          # would hold the autopilot port is dropped.
+          sudo grep -q "cgroup_enable=memory" /mnt/piboot/cmdline.txt || MISSING+=("cmdline.txt: cgroup_enable=memory")
+          if sudo grep -q "console=serial" /mnt/piboot/cmdline.txt; then
+            MISSING+=("cmdline.txt: console=serial is still there")
+          fi
           sudo umount /mnt/piboot
           sudo kpartx -d deploy/pimod/blueos.img
+          if [ ${#MISSING[@]} -ne 0 ]; then
+            echo "Missing from the boot partition of the ${{ matrix.os }} ${{ matrix.platform }} image built on ${{ matrix.runner }}:"
+            printf '  %s\n' "${MISSING[@]}"
+            echo "The board install script did not configure the image's boot partition."
+            exit 1
+          fi
           echo "Boot partition updated successfully."
 
       - name: Sanitize platform name
