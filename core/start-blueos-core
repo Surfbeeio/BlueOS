@@ -143,7 +143,9 @@ SERVICES=(
     'ttyd',250,0,0,0,'nice -19 ttyd -p 8088 sh -c "/usr/bin/tmux attach -t user_terminal || /usr/bin/tmux new -s user_terminal"'
     'nginx',250,0,0,0,"nice -18 nginx -g \"daemon off;\" -c $TOOLS_PATH/nginx/nginx.conf"
     'bag_of_holding',250,0,0,0,"$SERVICES_PATH/bag_of_holding/main.py"
-    'recorder',250,0,0,0,"blueos-recorder --recorder-path /usr/blueos/userdata/recorder"
+    # Off on Surfbee boats: it records every armed run with no cleanup, and the thousands of files it leaves in
+    # userdata slow the boot-time chown until BlueOS times out
+    # 'recorder',250,0,0,0,"blueos-recorder --recorder-path /usr/blueos/userdata/recorder"
     'recorder_extractor',250,0,0,0,"$SERVICES_PATH/recorder_extractor/main.py"
     'disk_usage',250,0,0,0,"$SERVICES_PATH/disk_usage/main.py"
 )
