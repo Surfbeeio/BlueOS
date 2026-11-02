@@ -15,6 +15,8 @@ DEFAULT_NETWORK_INTERFACES = [
             # Surfbee boats reach their radio link, and through it the internet, on 192.168.144.0/24
             InterfaceAddress(ip="192.168.144.178", mode=AddressMode.Unmanaged),
         ],
+        # Behind Wi-Fi (NetworkManager gives wlan0 600), so the .144.12 gateway only carries traffic with no Wi-Fi
+        priority=1000,
         routes=[
             Route(
                 destination=str(IPvAnyNetwork("224.0.0.0/4")),
