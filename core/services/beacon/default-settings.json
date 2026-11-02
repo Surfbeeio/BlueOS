@@ -1,7 +1,7 @@
 {
     "VERSION": 1,
     "default": {
-      "domain_names": ["blueos"],
+      "domain_names": ["surfbee"],
       "advertise": ["_http"],
       "ip": "ips[0]"
     },
@@ -9,19 +9,19 @@
     "interfaces": [
       {
         "name": "eth0",
-        "domain_names": ["blueos", "blueos-ethernet", "companion"],
+        "domain_names": ["surfbee", "surfbee-ethernet", "companion", "blueos"],
         "advertise": ["_mavlink", "_http"],
         "ip": "ips[*]"
       },
       {
         "name": "wlan0",
-        "domain_names": ["blueos-wifi"],
+        "domain_names": ["surfbee-wifi"],
         "advertise": ["_http"],
         "ip": "ips[0]"
       },
       {
         "name": "uap0",
-        "domain_names": ["blueos-hotspot"],
+        "domain_names": ["surfbee-hotspot"],
         "advertise": ["_http"],
         "ip": "ips[0]"
       }

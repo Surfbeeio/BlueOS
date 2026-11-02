@@ -265,6 +265,13 @@ if [ -f "$STARTUP_JSON" ]; then
         -e "s|\"tag\": \"[^\"]*\"|\"tag\": \"${BLUEOS_CORE##*:}\"|" "$STARTUP_JSON"
 fi
 
+# Surfbee boats come set up, so mark the setup wizard (WIZARD_VERSION in Wizard.vue) as done
+BAG_OF_HOLDING="$HOME/.config/blueos/bag-of-holding"
+if [ ! -f "$BAG_OF_HOLDING" ]; then
+    mkdir -p "$(dirname "$BAG_OF_HOLDING")"
+    echo '{"wizard": {"version": 4}}' > "$BAG_OF_HOLDING"
+fi
+
 # Extension images that aren't on a public registry, embedded in the image by CI
 for image_archive in /root/blueos-images/*.tar; do
     [ -f "$image_archive" ] && docker load -i "$image_archive"

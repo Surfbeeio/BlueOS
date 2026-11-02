@@ -515,7 +515,8 @@ class AutoPilotManager(metaclass=Singleton):
     def get_preferred_board(self) -> FlightController:
         preferred_board = self.configuration.get("preferred_board")
         if not preferred_board:
-            raise NoPreferredBoardSet("Preferred board not set yet.")
+            # Surfbee boats reach the autopilot through Nexus's mavlink-router, so they run a Manual board
+            return FlightController(name="Manual", manufacturer="Manual", platform=Platform.Manual)
         return FlightController(**preferred_board)
 
     def get_board_to_be_used(self, boards: List[FlightController]) -> FlightController:
@@ -732,12 +733,13 @@ class AutoPilotManager(metaclass=Singleton):
         return True
 
     def get_manual_board_master_endpoint(self) -> Endpoint:
+        # Nexus's mavlink-router serves the autopilot on UDP 6842
         default_master_endpoint = Endpoint(
             name="Manual Board Master Endpoint",
             owner=self.settings.app_name,
-            connection_type=EndpointType.UDPServer,
-            place="0.0.0.0",
-            argument=14551,
+            connection_type=EndpointType.UDPClient,
+            place="127.0.0.1",
+            argument=6842,
             persistent=True,
             enabled=True,
         )
