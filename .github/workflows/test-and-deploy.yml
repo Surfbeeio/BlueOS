@@ -101,7 +101,7 @@ jobs:
         run: |
           # Deploy image with the name of the branch, if the build is a git tag, replace tag with the tag name.
           # If git tag matches semver, append latest tag to the push.
-          DOCKER_IMAGE=${DOCKER_USERNAME:-bluerobotics}/${{ matrix.project }}-${{ matrix.docker }}
+          DOCKER_IMAGE=${DOCKER_USERNAME:-surfbeeio}/${{ matrix.project }}-${{ matrix.docker }}
           VERSION=${GITHUB_REF##*/}
 
           if [[ $GITHUB_REF == refs/tags/* ]]; then
