@@ -59,7 +59,7 @@ for STRING in \
     "dtparam=spi=on" \
     "dtoverlay=spi0-led" \
     "dtoverlay=spi1-3cs" \
-    "gpio=11,24,25=op,pu,dh" \
+    "gpio=24,25=op,pu,dh" \
     "gpio=37=op,pd,dl" \
     "dtoverlay=dwc2,dr_mode=peripheral" \
     ; do \
