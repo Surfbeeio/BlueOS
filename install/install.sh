@@ -334,6 +334,25 @@ echo "uninitialized" > /etc/machine-id
 echo "Restarting random-seeds."
 rm -rf /var/lib/systemd/random-seed /loader/random-seed
 
+# Core sets dns=none on first boot and reboots, and NetworkManager blanks resolv.conf on the way down, leaving the
+# host with no DNS (and so no NTP). Doing it here keeps NetworkManager away from resolv.conf from the first boot.
+echo "configuring static dns"
+cat > /etc/NetworkManager/NetworkManager.conf << 'EOF'
+[main]
+plugins=ifupdown,keyfile
+dns=none
+
+[ifupdown]
+managed=false
+
+[device]
+wifi.scan-rand-mac-address=no
+
+[keyfile]
+unmanaged-devices=interface:eth0;interface:usb0
+EOF
+printf "nameserver 1.1.1.1\nnameserver 8.8.8.8\n" > /etc/resolv.conf
+
 echo "creating dns link"
 sudo ln --force /etc/resolv.conf /etc/resolv.conf.host
 
